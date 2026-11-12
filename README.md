@@ -1,41 +1,46 @@
 # credit-fraud-prediction
 # Классификация мошеннических транзакций
 
-Проект по бинарной классификации мошеннических транзакций с использованием scikit-learn и CatBoost.
+Проект по бинарной классификации мошеннических транзакций для соревнования Kaggle **Playground Series — Season 6 Episode 11**.
 
 ## Описание
 
-Модель предсказывает вероятность мошенничества для каждой транзакции. Основная метрика оценки — ROC AUC.
+Модель предсказывает вероятность мошенничества для каждой транзакции. Оценка сабмита производится по ROC AUC между предсказанной вероятностью и истинным значением `is_fraud`.
 
-В проекте сравнивались следующие модели:
+## Данные
+
+Данные не включены в репозиторий из-за большого размера.
+
+Скачайте их через `kagglehub`:
+
+```python
+import kagglehub
+
+path = kagglehub.competition_download("playground-series-s6e11")
+print("Path to competition files:", path)
+```
+
+После скачивания будут доступны файлы:
+
+- `train.csv`
+- `test.csv`
+- `sample_submission.csv`
+
+Целевая переменная — `is_fraud`:
+
+- `1` — мошенническая транзакция
+- `0` — обычная транзакция
+
+## Модели
+
+В проекте сравнивались:
 
 - RidgeClassifier
 - RandomForestClassifier
 - HistGradientBoostingClassifier
 - CatBoostClassifier
 
-## Данные
-
-Данные загружаются из CSV-файлов:
-
-- `train.csv` — обучающая выборка
-- `test.csv` — тестовая выборка
-
-Целевая переменная — `is_fraud`:
-- `1` — мошенническая транзакция
-- `0` — обычная транзакция
-
-## Методология
-
-1. Предобработка данных выполняется с помощью `Pipeline`.
-2. Модели оцениваются с помощью стратифицированной кросс-валидации.
-3. Основная метрика — ROC AUC.
-4. Для редкого положительного класса дополнительно анализируются precision, recall и F1-score.
-5. Порог классификации подбирается с учётом допустимого количества предупреждений (alert budget).
-
 ## Результаты
-
-На тестовой выборке:
 
 | Модель | ROC AUC |
 |---|---:|
@@ -44,28 +49,22 @@
 | HistGradientBoostingClassifier | 0.940 |
 | CatBoostClassifier | 0.940 |
 
-Финальная модель — `HistGradientBoostingClassifier` с подобранными гиперпараметрами и `class_weight="balanced"`.
+Финальная модель — `HistGradientBoostingClassifier` с `class_weight="balanced"`.
 
-## Использование
+## submission.csv
 
-```python
-import pandas as pd
+Файл submission.csv содержит вероятности мошенничества:
 
-test_data = pd.read_csv("test.csv")
-
-test_prob = best_gbc.predict_proba(test_data)[:, 1]
-
-submission = pd.DataFrame({
-    "id": test_data["id"],
-    "is_fraud": test_prob
-})
-
-submission.to_csv("submission.csv", index=False)
+```csv
+id,is_fraud
+699960,0.3
+699961,0.9
+699962,0.2
 ```
 
-## Результат сабмита
+## Результат
 
-Score: **0.94495**
+Public score: **0.94495**
 
 ## Зависимости
 
@@ -74,3 +73,4 @@ Score: **0.94495**
 - numpy
 - scikit-learn
 - catboost
+- kagglehub
